@@ -5,9 +5,9 @@
 Add this project to your main manifest west.yml:
 ```yaml
 - name: HX711
-    path: modules/HX711
-    revision: main
-    url: https://github.com/nobodyguy/HX711_zephyr_driver
+  path: modules/HX711
+  revision: main
+  url: https://github.com/nobodyguy/HX711_zephyr_driver
 ```
 So your projects should look something like this:
 ```yaml
