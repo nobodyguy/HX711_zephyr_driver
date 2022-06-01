@@ -89,7 +89,7 @@ static int hx711_cycle(struct hx711_data *data)
  *
  * @param dev Pointer to the hx711 device structure
  * @param chan Channel to fetch data for.
- *             Only SENSOR_CHANNEL_WEIGHT is available.
+ *             Only HX711_SENSOR_CHAN_WEIGHT is available.
  *
  * @retval 0 on success,
  * @retval -EACCES error if module is not powered up.
