@@ -17,15 +17,13 @@ extern "C" {
 #include <drivers/gpio.h>
 
 /* Additional custom attributes */
-enum hx711_attribute
-{
-    HX711_SENSOR_ATTR_SLOPE = SENSOR_ATTR_PRIV_START,
-	HX711_SENSOR_ATTR_GAIN = SENSOR_ATTR_PRIV_START + 1,
+enum hx711_attribute {
+	HX711_SENSOR_ATTR_SLOPE = SENSOR_ATTR_PRIV_START,
+	HX711_SENSOR_ATTR_GAIN  = SENSOR_ATTR_PRIV_START + 1,
 };
 
-enum hx711_channel
-{
-    HX711_SENSOR_CHAN_WEIGHT = SENSOR_CHAN_PRIV_START,
+enum hx711_channel {
+	HX711_SENSOR_CHAN_WEIGHT = SENSOR_CHAN_PRIV_START,
 };
 
 enum hx711_gain {

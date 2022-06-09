@@ -546,7 +546,7 @@ int avia_hx711_power(const struct device *dev, enum hx711_power pow)
 #ifdef CONFIG_PM_DEVICE
 /**
  * @brief Set the Device Power Management State.
- * 
+ *
  * @param dev - The device structure.
  * @param action - power management state
  * @retval 0 on success
