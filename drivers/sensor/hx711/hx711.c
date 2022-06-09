@@ -262,8 +262,8 @@ static void hx711_attr_set_slope(struct hx711_data *data, const struct sensor_va
  *               HX711_SENSOR_CHAN_WEIGHT
  * @param attr Attribute to change.
  *             Supported attributes :
- *               HX711_SENSOR_ATTR_SAMPLING_FREQUENCY
- *               HX711_SENSOR_ATTR_OFFSET
+ *               SENSOR_ATTR_SAMPLING_FREQUENCY
+ *               SENSOR_ATTR_OFFSET
  *               HX711_SENSOR_ATTR_SLOPE
  *               HX711_SENSOR_ATTR_GAIN
  * @param val   Value to set.
@@ -275,19 +275,19 @@ static int hx711_attr_set(const struct device *dev, enum sensor_channel chan,
 			  enum sensor_attribute attr, const struct sensor_value *val)
 {
 	int ret = 0;
-	enum hx711_attribute hx711_attr = (enum hx711_attribute)attr;
+	int hx711_attr = (int)attr;
 	struct hx711_data *data = dev->data;
 
 	switch (hx711_attr) {
 #if DT_INST_NODE_HAS_PROP(0, rate_gpios)
-	case HX711_SENSOR_ATTR_SAMPLING_FREQUENCY:
+	case SENSOR_ATTR_SAMPLING_FREQUENCY:
 		ret = hx711_attr_set_rate(data, val);
 		if (ret == 0) {
 			LOG_DBG("Attribute RATE set to %d\n", data->rate);
 		}
 		return ret;
 #endif
-	case HX711_SENSOR_ATTR_OFFSET:
+	case SENSOR_ATTR_OFFSET:
 		hx711_attr_set_offset(data, val);
 		LOG_DBG("Attribute OFFSET set to %d\n", data->offset);
 		return ret;
