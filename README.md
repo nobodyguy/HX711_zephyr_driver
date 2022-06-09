@@ -73,7 +73,7 @@ void set_rate(enum hx711_rate rate)
 	rate_val.val1 = rate;
 	sensor_attr_set(hx711,
 			HX711_SENSOR_CHAN_WEIGHT,
-			HX711_SENSOR_ATTR_SAMPLING_FREQUENCY,
+			SENSOR_ATTR_SAMPLING_FREQUENCY,
 			&rate_val);
 }
 
@@ -84,10 +84,10 @@ void measure(void)
 
 	ret = sensor_sample_fetch(hx711);
 	if (ret != 0) {
-		LOG_ERR("Cannot take measurement: %d  ", ret);
+		LOG_ERR("Cannot take measurement: %d", ret);
 	} else {
 		sensor_channel_get(hx711, HX711_SENSOR_CHAN_WEIGHT, &weight);
-		LOG_INF("Weight: %d.%06d", weight.val1, weight.val2);
+		LOG_INF("Weight: %d.%06d grams", weight.val1, weight.val2);
 	}
 }
 
