@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2020 George Gkinis
- * Copyright (c) 2021 Jan Gnip
+ * Copyright (c) 2022 Jan Gnip
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,10 +11,10 @@
 extern "C" {
 #endif
 
-#include <device.h>
-#include <kernel.h>
-#include <drivers/sensor.h>
-#include <drivers/gpio.h>
+#include <zephyr/device.h>
+#include <zephyr/kernel.h>
+#include <zephyr/drivers/sensor.h>
+#include <zephyr/drivers/gpio.h>
 
 /* Additional custom attributes */
 enum hx711_attribute {
@@ -61,15 +61,15 @@ struct hx711_data {
 
 struct hx711_config {
 	gpio_pin_t dout_pin;
-	const char *dout_ctrl;
+	const struct device *dout_ctrl;
 	gpio_dt_flags_t dout_flags;
 
 	gpio_pin_t sck_pin;
-	const char *sck_ctrl;
+	const struct device *sck_ctrl;
 	gpio_dt_flags_t sck_flags;
 
 	gpio_pin_t rate_pin;
-	const char *rate_ctrl;
+	const struct device *rate_ctrl;
 	gpio_dt_flags_t rate_flags;
 };
 

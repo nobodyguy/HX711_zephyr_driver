@@ -1,5 +1,5 @@
 # Copyright (c) 2020 George Gkinis
-# Copyright (c) 2021 Jan Gnip
+# Copyright (c) 2022 Jan Gnip
 # SPDX-License-Identifier: Apache-2.0
 
 description: |
@@ -28,6 +28,3 @@ properties:
     required: false
     description: |
       Pin on which sampling rate is chosen.
-
-  label:
-    required: true

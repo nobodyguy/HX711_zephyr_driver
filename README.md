@@ -2,6 +2,7 @@
 *HX711 is a precision 24-bit analog-to-digital converter (ADC) designed for weigh scale applications.*
 
 ## Supported Zephyr versions
+* 3.2.0 (September 2022)
 * 2.7.0 LTS2 Release (October 2021)
 ## Usage
 ### Module installation
@@ -9,7 +10,7 @@ Add this project to your `west.yml` manifest:
 ```yaml
 - name: HX711
   path: modules/HX711
-  revision: main
+  revision: refs/tags/zephyr-v3.2.0
   url: https://github.com/nobodyguy/HX711_zephyr_driver
 ```
 
@@ -19,11 +20,11 @@ manifest:
   projects:
     - name: zephyr
       url: https://github.com/zephyrproject-rtos/zephyr
-      revision: v2.7-branch
+      revision: refs/tags/zephyr-v3.2.0
       import: true
     - name: HX711
       path: modules/HX711
-      revision: main
+      revision: refs/tags/zephyr-v3.2.0
       url: https://github.com/nobodyguy/HX711_zephyr_driver
 ```
 
@@ -54,24 +55,27 @@ Define HX711 in your board `.overlay` like this example:
 
 ### Driver usage
 ```c
-#include <device.h>
-#include <drivers/sensor.h>
-#include <sensor/hx711/hx711.h>
-#include <logging/log.h>
-#include <stddef.h>
-#include <sys/util.h>
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
+#include <zephyr/drivers/sensor.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/sys/util.h>
 #include <zephyr/types.h>
+
+#include <sensor/hx711/hx711.h>
+#include <stddef.h>
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
-const struct device *hx711;
+const struct device *hx711_dev;
 
 void set_rate(enum hx711_rate rate)
 {
 	static struct sensor_value rate_val;
 
 	rate_val.val1 = rate;
-	sensor_attr_set(hx711,
+	sensor_attr_set(hx711_dev,
 			HX711_SENSOR_CHAN_WEIGHT,
 			SENSOR_ATTR_SAMPLING_FREQUENCY,
 			&rate_val);
@@ -82,11 +86,11 @@ void measure(void)
 	static struct sensor_value weight;
 	int ret;
 
-	ret = sensor_sample_fetch(hx711);
+	ret = sensor_sample_fetch(hx711_dev);
 	if (ret != 0) {
 		LOG_ERR("Cannot take measurement: %d", ret);
 	} else {
-		sensor_channel_get(hx711, HX711_SENSOR_CHAN_WEIGHT, &weight);
+		sensor_channel_get(hx711_dev, HX711_SENSOR_CHAN_WEIGHT, &weight);
 		LOG_INF("Weight: %d.%06d grams", weight.val1, weight.val2);
 	}
 }
@@ -94,12 +98,12 @@ void measure(void)
 void main(void)
 {
 	int calibration_weight = 100; // grams
-	hx711 = DEVICE_DT_GET(DT_ALIAS(hx711_sensor));
-	__ASSERT(hx711 == NULL, "Failed to get device binding");
+	hx711_dev = DEVICE_DT_GET_ANY(avia_hx711);
+	__ASSERT(hx711_dev == NULL, "Failed to get device binding");
 
-	LOG_INF("Device is %p, name is %s", hx711, hx711->name);
+	LOG_INF("Device is %p, name is %s", hx711_dev, hx711_dev->name);
 	LOG_INF("Calculating offset...");
-	avia_hx711_tare(hx711, 5);
+	avia_hx711_tare(hx711_dev, 5);
 
 	LOG_INF("Waiting for known weight of %d grams...",
 		calibration_weight);
@@ -110,7 +114,7 @@ void main(void)
 	}
 
 	LOG_INF("Calculating slope...");
-	avia_hx711_calibrate(hx711, calibration_weight, 5);
+	avia_hx711_calibrate(hx711_dev, calibration_weight, 5);
 
 	while (true) {
 		k_msleep(1000);
@@ -125,4 +129,10 @@ void main(void)
 		measure();
 	}
 }
+```
+Relevant `prj.conf`:
+```ini
+CONFIG_SENSOR=y
+CONFIG_HX711=y
+CONFIG_LOG=y
 ```
