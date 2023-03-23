@@ -13,6 +13,10 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/byteorder.h>
 
+#ifdef CONFIG_PM_DEVICE
+#include <zephyr/pm/device.h>
+#endif
+
 #include "hx711.h"
 
 #define SAMPLE_FETCH_TIMEOUT_MS 600
@@ -565,5 +569,6 @@ static const struct sensor_driver_api hx711_api = {
 	.attr_set = hx711_attr_set,
 };
 
-DEVICE_DT_INST_DEFINE(0, hx711_init, hx711_pm_ctrl, &hx711_data, &hx711_config, POST_KERNEL,
+PM_DEVICE_DT_DEFINE(DT_DRV_INST(0), hx711_pm_ctrl);
+DEVICE_DT_INST_DEFINE(0, hx711_init, PM_DEVICE_DT_GET(DT_DRV_INST(0)), &hx711_data, &hx711_config, POST_KERNEL,
 		      CONFIG_SENSOR_INIT_PRIORITY, &hx711_api);
