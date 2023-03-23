@@ -12,10 +12,7 @@
 #include <zephyr/irq.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/byteorder.h>
-
-#ifdef CONFIG_PM_DEVICE
 #include <zephyr/pm/device.h>
-#endif
 
 #include "hx711.h"
 
