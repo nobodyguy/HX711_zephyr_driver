@@ -97,6 +97,7 @@ static int hx711_cycle(struct hx711_data *data)
 static int hx711_sample_fetch(const struct device *dev, enum sensor_channel chan)
 {
 	int ret = 0;
+	int interrupt_cfg_ret;
 	uint32_t count = 0;
 	int i;
 
@@ -138,9 +139,10 @@ static int hx711_sample_fetch(const struct device *dev, enum sensor_channel chan
 	data->reading = count;
 
 exit:
-	ret = gpio_pin_interrupt_configure(data->dout_gpio, cfg->dout_pin, GPIO_INT_EDGE_TO_INACTIVE);
-	if (ret != 0) {
+	interrupt_cfg_ret = gpio_pin_interrupt_configure(data->dout_gpio, cfg->dout_pin, GPIO_INT_EDGE_TO_INACTIVE);
+	if (interrupt_cfg_ret != 0) {
 		LOG_ERR("Failed to set dout GPIO interrupt");
+		ret = interrupt_cfg_ret;
 	}
 
 	return ret;
