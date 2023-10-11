@@ -68,7 +68,7 @@ static void hx711_gpio_callback(const struct device *dev, struct gpio_callback *
  * @retval The value of the DOUT pin (HIGH or LOW)
  *
  */
-static int hx711_cycle(struct hx711_data *data)
+static inline void hx711_cycle(struct hx711_data *data)
 {
 	/* SCK set HIGH */
 	gpio_pin_set(data->sck_gpio, hx711_config.sck_pin, true);
@@ -77,9 +77,6 @@ static int hx711_cycle(struct hx711_data *data)
 	/* SCK set LOW */
 	gpio_pin_set(data->sck_gpio, hx711_config.sck_pin, false);
 	k_busy_wait(1);
-
-	/* Return DOUT pin state */
-	return gpio_pin_get(data->dout_gpio, hx711_config.dout_pin);
 }
 
 /**
@@ -119,8 +116,10 @@ static int hx711_sample_fetch(const struct device *dev, enum sensor_channel chan
 	uint32_t key = irq_lock();
 #endif
 	for (i = 0; i < 24; i++) {
+        gpio_pin_set(data->sck_gpio, hx711_config.sck.pin, true);
 		count = count << 1;
-		if (hx711_cycle(data)) {
+        gpio_pin_set(data->sck_gpio, hx711_config.sck.pin, false);
+		if (gpio_pin_get(data->dout_gpio, hx711_config.dout.pin) {
 			count++;
 		}
 	}
