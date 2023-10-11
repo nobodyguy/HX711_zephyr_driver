@@ -399,7 +399,7 @@ static int hx711_init(const struct device *dev)
 	k_sem_init(&data->dout_sem, 1, 1);
 
 	/* Configure DOUT as input */
-	data->dout_gpio = cfg->sck_ctrl;
+	data->dout_gpio = cfg->dout_ctrl;
 	LOG_DBG("DOUT pin controller is %p, name is %s\n", data->dout_gpio, data->dout_gpio->name);
 	ret = gpio_pin_configure(data->dout_gpio, cfg->dout_pin, GPIO_INPUT | cfg->dout_flags);
 	if (ret != 0) {
