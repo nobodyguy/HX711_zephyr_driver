@@ -42,13 +42,22 @@ CONFIG_HX711=y
 Define HX711 in your board `.overlay` like this example:
 ```dts
 /{
-	hx711 {
+	hx711@0 {
 		compatible = "avia,hx711";
 		status = "okay";
-		label = "HX711";
+		label = "HX711_0";
 		dout-gpios = <&gpio0 26 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP) >;
 		sck-gpios = <&gpio0 27 GPIO_ACTIVE_HIGH>;
 		rate-gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>;
+	};
+
+	hx711@1 {
+		compatible = "avia,hx711";
+		status = "okay";
+		label = "HX711_1";
+		dout-gpios = <&gpio0 28 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP) >;
+		sck-gpios = <&gpio0 29 GPIO_ACTIVE_HIGH>;
+		rate-gpios = <&gpio0 30 GPIO_ACTIVE_HIGH>;
 	};
 };
 ```
