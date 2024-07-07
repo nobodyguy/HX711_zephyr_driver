@@ -249,6 +249,22 @@ static int hx711_attr_set_rate(struct hx711_data *data, const struct sensor_valu
  */
 static void hx711_attr_set_offset(struct hx711_data *data, const struct sensor_value *offset)
 {
+#if defined(CONFIG_HX711_ENABLE_MEDIAN_FILTER) || defined(CONFIG_HX711_ENABLE_EMA_FILTER)
+	k_mutex_lock(&data->filter_lock, K_FOREVER);
+#endif
+
+#ifdef CONFIG_HX711_ENABLE_MEDIAN_FILTER
+    median_filter_init(&data->median_filter, offset->val1);
+#endif
+
+#ifdef CONFIG_HX711_ENABLE_EMA_FILTER
+	ema_filter_reset(&data->ema_filter, (double)offset->val1);
+#endif
+
+#if defined(CONFIG_HX711_ENABLE_MEDIAN_FILTER) || defined(CONFIG_HX711_ENABLE_EMA_FILTER)
+	k_mutex_unlock(&data->filter_lock);
+#endif
+
 	data->offset = offset->val1;
 }
 
@@ -420,11 +436,11 @@ static int hx711_init(const struct device *dev)
 #endif
 
 #ifdef CONFIG_HX711_ENABLE_MEDIAN_FILTER
-    median_filter_init(&data->median_filter);
+    median_filter_init(&data->median_filter, data->offset);
 #endif
 
 #ifdef CONFIG_HX711_ENABLE_EMA_FILTER
-    ema_filter_init(&data->ema_filter, CONFIG_HX711_EMA_FILTER_ALPHA_FACTOR);
+    ema_filter_init(&data->ema_filter, CONFIG_HX711_EMA_FILTER_ALPHA_FACTOR, (double)data->offset);
 #endif
 
 	k_sem_init(&data->dout_sem, 1, 1);
@@ -483,6 +499,22 @@ int avia_hx711_tare(const struct device *dev, uint8_t readings)
 	avg = avg / readings;
 	LOG_DBG("Average after division : %d", avg);
 	data->offset = avg;
+
+#if defined(CONFIG_HX711_ENABLE_MEDIAN_FILTER) || defined(CONFIG_HX711_ENABLE_EMA_FILTER)
+	k_mutex_lock(&data->filter_lock, K_FOREVER);
+#endif
+
+#ifdef CONFIG_HX711_ENABLE_MEDIAN_FILTER
+    median_filter_init(&data->median_filter, data->offset);
+#endif
+
+#ifdef CONFIG_HX711_ENABLE_EMA_FILTER
+	ema_filter_reset(&data->ema_filter, (double)data->offset);
+#endif
+
+#if defined(CONFIG_HX711_ENABLE_MEDIAN_FILTER) || defined(CONFIG_HX711_ENABLE_EMA_FILTER)
+	k_mutex_unlock(&data->filter_lock);
+#endif
 
 	return data->offset;
 }

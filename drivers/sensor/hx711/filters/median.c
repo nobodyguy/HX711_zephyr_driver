@@ -9,14 +9,14 @@ int compare(const void *a, const void *b)
 }
 
 // Initialize the median filter
-void median_filter_init(median_filter_t *f)
+void median_filter_init(median_filter_t *f, int32_t initial_value)
 {
     f->index = 0;
 
     // Initialize the window to zeros
     for (int i = 0; i < CONFIG_HX711_MEDIAN_FILTER_WINDOW_SIZE; i++)
     {
-        f->window[i] = 0;
+        f->window[i] = initial_value;
     }
 }
 

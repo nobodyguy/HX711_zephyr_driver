@@ -1,6 +1,6 @@
 #include "ema.h"
 
-void ema_filter_init(ema_filter_t *f, int alpha)
+void ema_filter_init(ema_filter_t *f, int alpha, double initial_value)
 {
     if (alpha < 0)
     {
@@ -15,7 +15,12 @@ void ema_filter_init(ema_filter_t *f, int alpha)
         f->alpha = (float)alpha / 100.0f;
     }
 
-    f->out = 0.0;
+    f->out = initial_value;
+}
+
+void ema_filter_reset(ema_filter_t *f, double initial_value)
+{
+    f->out = initial_value;
 }
 
 int32_t ema_filter_update(ema_filter_t *f, int32_t measurement)
