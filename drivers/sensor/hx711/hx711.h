@@ -16,6 +16,14 @@ extern "C" {
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/drivers/gpio.h>
 
+#ifdef CONFIG_HX711_ENABLE_MEDIAN_FILTER
+#include "filters/median.h"
+#endif
+
+#ifdef CONFIG_HX711_ENABLE_EMA_FILTER
+#include "filters/ema.h"
+#endif
+
 /* Additional custom attributes */
 enum hx711_attribute {
 	HX711_SENSOR_ATTR_SLOPE = SENSOR_ATTR_PRIV_START,
@@ -57,6 +65,15 @@ struct hx711_data {
 	char gain;
 	enum hx711_rate rate;
 	enum hx711_power power;
+#if defined(CONFIG_HX711_ENABLE_MEDIAN_FILTER) || defined(CONFIG_HX711_ENABLE_EMA_FILTER)
+	struct k_mutex filter_lock;
+#endif
+#ifdef CONFIG_HX711_ENABLE_MEDIAN_FILTER
+	median_filter_t median_filter;
+#endif
+#ifdef CONFIG_HX711_ENABLE_EMA_FILTER
+	ema_filter_t ema_filter;
+#endif
 };
 
 struct hx711_config {

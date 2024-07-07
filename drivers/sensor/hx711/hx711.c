@@ -97,6 +97,7 @@ static int hx711_cycle(struct hx711_data *data)
 static int hx711_sample_fetch(const struct device *dev, enum sensor_channel chan)
 {
 	int ret = 0;
+	int interrupt_cfg_ret;
 	uint32_t count = 0;
 	int i;
 
@@ -134,13 +135,31 @@ static int hx711_sample_fetch(const struct device *dev, enum sensor_channel chan
 #endif
 
 	count ^= 0x800000;
-
 	data->reading = count;
 
+#if defined(CONFIG_HX711_ENABLE_MEDIAN_FILTER) || defined(CONFIG_HX711_ENABLE_EMA_FILTER)
+	k_mutex_lock(&data->filter_lock, K_FOREVER);
+#endif
+
+#ifdef CONFIG_HX711_ENABLE_MEDIAN_FILTER
+	// Apply the median filter to the reading
+    data->reading = median_filter_update(&data->median_filter, data->reading);
+#endif
+
+#ifdef CONFIG_HX711_ENABLE_EMA_FILTER
+	// Apply the EMA filter to the reading
+    data->reading = ema_filter_update(&data->ema_filter, data->reading);
+#endif
+
+#if defined(CONFIG_HX711_ENABLE_MEDIAN_FILTER) || defined(CONFIG_HX711_ENABLE_EMA_FILTER)
+	k_mutex_unlock(&data->filter_lock);
+#endif
+
 exit:
-	ret = gpio_pin_interrupt_configure(data->dout_gpio, cfg->dout_pin, GPIO_INT_EDGE_TO_INACTIVE);
-	if (ret != 0) {
+	interrupt_cfg_ret = gpio_pin_interrupt_configure(data->dout_gpio, cfg->dout_pin, GPIO_INT_EDGE_TO_INACTIVE);
+	if (interrupt_cfg_ret != 0) {
 		LOG_ERR("Failed to set dout GPIO interrupt");
+		ret = interrupt_cfg_ret;
 	}
 
 	return ret;
@@ -396,10 +415,22 @@ static int hx711_init(const struct device *dev)
 	}
 #endif
 
+#if defined(CONFIG_HX711_ENABLE_MEDIAN_FILTER) || defined(CONFIG_HX711_ENABLE_EMA_FILTER)
+	k_mutex_init(&data->filter_lock);
+#endif
+
+#ifdef CONFIG_HX711_ENABLE_MEDIAN_FILTER
+    median_filter_init(&data->median_filter);
+#endif
+
+#ifdef CONFIG_HX711_ENABLE_EMA_FILTER
+    ema_filter_init(&data->ema_filter, CONFIG_HX711_EMA_FILTER_ALPHA_FACTOR);
+#endif
+
 	k_sem_init(&data->dout_sem, 1, 1);
 
 	/* Configure DOUT as input */
-	data->dout_gpio = cfg->sck_ctrl;
+	data->dout_gpio = cfg->dout_ctrl;
 	LOG_DBG("DOUT pin controller is %p, name is %s\n", data->dout_gpio, data->dout_gpio->name);
 	ret = gpio_pin_configure(data->dout_gpio, cfg->dout_pin, GPIO_INPUT | cfg->dout_flags);
 	if (ret != 0) {
@@ -492,9 +523,7 @@ struct sensor_value avia_hx711_calibrate(const struct device *dev, uint32_t targ
 
 	LOG_DBG("Average after division : %d", avg);
 	double slope = (double)target / (double)(avg - data->offset);
-
-	data->slope.val1 = (int)slope;
-	data->slope.val2 = (slope - data->slope.val1) * 1e6;
+	sensor_value_from_double(&data->slope, slope);
 
 	LOG_DBG("Slope set to : %d.%06d", data->slope.val1, data->slope.val2);
 

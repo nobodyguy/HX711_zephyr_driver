@@ -70,7 +70,6 @@ config HX711_DISABLE_INTERRUPTS_WHILE_POLLING
 	help
 	  Disable interrupts while polling for data.
 
-
 config HX711_GAIN
 	int
 	default 1
@@ -78,5 +77,32 @@ config HX711_GAIN
 	default 2 if HX711_GAIN_32X
 	default 3 if HX711_GAIN_64X
 
+config HX711_ENABLE_MEDIAN_FILTER
+	bool "Apply median filter to output"
+	depends on MINIMAL_LIBC # int types, qsort()
+	help
+	  Apply median filter to output to discard peak values.
+
+config HX711_MEDIAN_FILTER_WINDOW_SIZE
+	int "Median filter window size"
+	depends on HX711_ENABLE_MEDIAN_FILTER
+	default 3
+	range 2 255
+	help
+	  Median filter window size.
+
+config HX711_ENABLE_EMA_FILTER
+	bool "Apply Exponential Moving Average filter to output"
+	depends on MINIMAL_LIBC # int types
+	help
+	  Apply Exponential Moving Average (EMA) filter to output to smooth output values.
+
+config HX711_EMA_FILTER_ALPHA_FACTOR
+	int "EMA filter alpha factor"
+	depends on HX711_ENABLE_EMA_FILTER
+	default 50
+	range 0 100
+	help
+	  How aggresive the smoothing shall be. Value close to 100 means more aggresive while the value close to 0 means less aggresive smoothing.
 
 endif # HX711
