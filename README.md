@@ -1,11 +1,12 @@
 # Out of tree HX711 sensor driver module for Zephyr RTOS
 *HX711 is a precision 24-bit analog-to-digital converter (ADC) designed for weigh scale applications.*
 
-## Supported Zephyr versions
+## Supported and tested Zephyr versions
+* 3.3.0 (February 2023)
 * 3.2.0 (September 2022)
 * 2.7.0 LTS2 Release (October 2021)
 ## Usage
-### Module installation
+### Module installation for projects using west modules
 Add this project to your `west.yml` manifest:
 ```yaml
 - name: HX711
@@ -32,6 +33,15 @@ This will import the driver and allow you to use it in your code.
 
 Additionally make sure that you run `west update` when you've added this entry to your `west.yml`.
 
+### Module installation for projects not using west modules directly
+1) Create directory named `modules` inside project root directory.
+2) Clone this repository into `modules` as `HX711` directory
+3) Edit `CMakeLists.txt` in your project's root directory:
+```CMake
++set(ZEPHYR_EXTRA_MODULES "${CMAKE_SOURCE_DIR}/modules/HX711")
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+```
+
 ### Driver configuration
 Enable sensor driver subsystem and HX711 driver by adding these entries to your `prj.conf`:
 ```ini
@@ -51,6 +61,19 @@ Define HX711 in your board `.overlay` like this example:
 		rate-gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>;
 	};
 };
+```
+
+There are also optional output filter that you can enable and configure.
+The first one is a median filter to discard any peak values.
+```ini
+CONFIG_HX711_ENABLE_MEDIAN_FILTER=y
+CONFIG_HX711_MEDIAN_FILTER_WINDOW_SIZE=3
+```
+
+The second one is an exponential moving average (EMA) to smooth out the output.
+```ini
+CONFIG_HX711_ENABLE_EMA_FILTER=y
+CONFIG_HX711_EMA_FILTER_ALPHA_FACTOR=50
 ```
 
 ### Driver usage
