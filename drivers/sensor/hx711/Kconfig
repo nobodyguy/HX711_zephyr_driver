@@ -48,7 +48,6 @@ endchoice
 
 config HX711_SAMPLING_RATE
 	int "HX711 sampling rate"
-	default 0
 	default 0 if HX711_RATE_10HZ
 	default 1 if HX711_RATE_80HZ
 
@@ -72,7 +71,6 @@ config HX711_DISABLE_INTERRUPTS_WHILE_POLLING
 
 config HX711_GAIN
 	int
-	default 1
 	default 1 if HX711_GAIN_128X
 	default 2 if HX711_GAIN_32X
 	default 3 if HX711_GAIN_64X
