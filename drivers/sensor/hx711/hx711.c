@@ -16,8 +16,6 @@
 
 #include "hx711.h"
 
-#define SAMPLE_FETCH_TIMEOUT_MS 600
-
 LOG_MODULE_REGISTER(HX711, CONFIG_SENSOR_LOG_LEVEL);
 
 static struct hx711_data hx711_data = {
@@ -91,7 +89,7 @@ static int hx711_cycle(struct hx711_data *data)
  *
  * @retval 0 on success,
  * @retval -EACCES error if module is not powered up.
- * @retval -EIO error if SAMPLE_FETCH_TIMEOUT_MS elapsed with no data available.
+ * @retval -EIO error if CONFIG_HX711_SAMPLE_FETCH_TIMEOUT_MS elapsed with no data available.
  *
  */
 static int hx711_sample_fetch(const struct device *dev, enum sensor_channel chan)
@@ -108,8 +106,8 @@ static int hx711_sample_fetch(const struct device *dev, enum sensor_channel chan
 		return -EACCES;
 	}
 
-	if (k_sem_take(&data->dout_sem, K_MSEC(SAMPLE_FETCH_TIMEOUT_MS))) {
-		LOG_ERR("Weight data not ready within %d ms", SAMPLE_FETCH_TIMEOUT_MS);
+	if (k_sem_take(&data->dout_sem, K_MSEC(CONFIG_HX711_SAMPLE_FETCH_TIMEOUT_MS))) {
+		LOG_ERR("Weight data not ready within %d ms", CONFIG_HX711_SAMPLE_FETCH_TIMEOUT_MS);
 		ret = -EIO;
 		goto exit;
 	}
