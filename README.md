@@ -38,7 +38,7 @@ Additionally make sure that you run `west update` when you've added this entry t
 2) Clone this repository into `modules` as `HX711` directory
 3) Edit `CMakeLists.txt` in your project's root directory:
 ```CMake
-+set(ZEPHYR_EXTRA_MODULES "${CMAKE_SOURCE_DIR}/modules/HX711")
+set(ZEPHYR_EXTRA_MODULES "${CMAKE_SOURCE_DIR}/modules/HX711")
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 ```
 
