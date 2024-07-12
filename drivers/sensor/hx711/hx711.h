@@ -67,6 +67,7 @@ struct hx711_data {
 	enum hx711_power power;
 #if defined(CONFIG_HX711_ENABLE_MEDIAN_FILTER) || defined(CONFIG_HX711_ENABLE_EMA_FILTER)
 	struct k_mutex filter_lock;
+	int32_t reading_unfiltered;
 #endif
 #ifdef CONFIG_HX711_ENABLE_MEDIAN_FILTER
 	median_filter_t median_filter;

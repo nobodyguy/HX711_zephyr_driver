@@ -28,6 +28,9 @@ static struct hx711_data hx711_data = {
 	.gain = CONFIG_HX711_GAIN,
 	.rate = CONFIG_HX711_SAMPLING_RATE,
 	.power = HX711_POWER_ON,
+#if defined(CONFIG_HX711_ENABLE_MEDIAN_FILTER) || defined(CONFIG_HX711_ENABLE_EMA_FILTER)
+	.reading_unfiltered = 0,
+#endif
 };
 
 static const struct hx711_config hx711_config = {
@@ -137,6 +140,7 @@ static int hx711_sample_fetch(const struct device *dev, enum sensor_channel chan
 
 #if defined(CONFIG_HX711_ENABLE_MEDIAN_FILTER) || defined(CONFIG_HX711_ENABLE_EMA_FILTER)
 	k_mutex_lock(&data->filter_lock, K_FOREVER);
+	data->reading_unfiltered = count;
 #endif
 
 #ifdef CONFIG_HX711_ENABLE_MEDIAN_FILTER
