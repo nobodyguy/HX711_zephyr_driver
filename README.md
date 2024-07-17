@@ -63,7 +63,7 @@ Define HX711 in your board `.overlay` like this example:
 };
 ```
 
-There are also optional output filter that you can enable and configure.
+There are also optional output filters that you can enable and configure.
 The first one is a median filter to discard any peak values.
 ```ini
 CONFIG_HX711_ENABLE_MEDIAN_FILTER=y
