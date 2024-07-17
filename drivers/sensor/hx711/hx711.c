@@ -71,12 +71,18 @@ static void hx711_gpio_callback(const struct device *dev, struct gpio_callback *
  */
 static int hx711_cycle(struct hx711_data *data)
 {
+#ifdef CONFIG_HX711_DISABLE_INTERRUPTS_WHILE_POLLING
+	uint32_t key = irq_lock();
+#endif
 	/* SCK set HIGH */
 	gpio_pin_set(data->sck_gpio, hx711_config.sck_pin, true);
 	k_busy_wait(1);
 
 	/* SCK set LOW */
 	gpio_pin_set(data->sck_gpio, hx711_config.sck_pin, false);
+#ifdef CONFIG_HX711_DISABLE_INTERRUPTS_WHILE_POLLING
+	irq_unlock(key);
+#endif
 	k_busy_wait(1);
 
 	/* Return DOUT pin state */
@@ -115,10 +121,7 @@ static int hx711_sample_fetch(const struct device *dev, enum sensor_channel chan
 		goto exit;
 	}
 
-	/* Clock data out. Optionally disable interrupts */
-#ifdef CONFIG_HX711_DISABLE_INTERRUPTS_WHILE_POLLING
-	uint32_t key = irq_lock();
-#endif
+	/* Clock data out. */
 	for (i = 0; i < 24; i++) {
 		count = count << 1;
 		if (hx711_cycle(data)) {
@@ -130,10 +133,6 @@ static int hx711_sample_fetch(const struct device *dev, enum sensor_channel chan
 	for (i = 0; i < data->gain; i++) {
 		hx711_cycle(data);
 	}
-
-#ifdef CONFIG_HX711_DISABLE_INTERRUPTS_WHILE_POLLING
-	irq_unlock(key);
-#endif
 
 	count ^= 0x800000;
 	data->reading = count;
